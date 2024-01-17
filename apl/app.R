@@ -62,14 +62,16 @@ ui <- shinyUI(fluidPage(
                                          c("Normal" = "rnorm",
                                            "Seragam" = "runif",
                                            "Condong ke kanan" = "rlnorm",
-                                           "Condong ke kiri" = "rbeta"),
+                                           "Condong ke kiri" = "rbeta",
+                                           "Puncak ganda" = "rnorm2"),
                                          selected = "rnorm"),
                             hr(),
                             ### Parameter distribusi ----
                             uiOutput("mu"),
                             uiOutput("sd"),
                             uiOutput("minmax"),
-                            uiOutput("skew")
+                            uiOutput("skew"),
+                            uiOutput("shape")
                           ),
                           wellPanel(
                             ### Memilih ukuran sampel ----
@@ -124,7 +126,7 @@ ui <- shinyUI(fluidPage(
              tabPanel("Informasi",
                       fluidRow(
                         column(6,
-                               div(h2("Aplikasi R dan Shiny untuk Mendemonstrasikan Teorema Limit Pusat")),
+                               div(h3("Aplikasi Shiny Teorema Limit Pusat")),
                                div(p("Tujuan aplikasi interaktif ini adalah untuk mendemonstrasikan Teorema Limit Pusat untuk distribusi sampling proporsi dan rerata satu populasi. Beberapa ide penting statistik ditunjukkan oleh aplikasi ini. Ide-ide penting tersebut antara lain adalah sebagai berikut."), align = "justify"),
                                div(tags$ul(tags$li("Jika ukuran sampelnya cukup besar, distribusi sampling proporsinya mendekati normal."),
                                            tags$li("Distribusi sampling proporsi tersebut memiliki rerata sama dengan proporsi populasinya dan simpangan bakunya sama dengan akar kuadrat dari hasil kali antara proporsi populasi dan satu dikurangi proporsi tersebut kemudian dibagi dengan ukuran sampel."),
@@ -132,7 +134,7 @@ ui <- shinyUI(fluidPage(
                                            tags$li("Untuk sampel yang berukuran kecil, distribusi sampling reratanya mendekati normal jika populasi dari sampel tersebut berdistribusi normal."),
                                            tags$li("Distribusi sampling rerata tersebut memiliki rerata yang sama dengan rerata populasinya dan simpangan baku yang sama dengan simpangan baku populasi dibagi dengan akar kuadrat ukuran sampel.")), align = "justify"),
                                div(p("Aplikasi interaktif ini dikembangkan dengan menggunakan bahasa pemrogram", a("R", href = "https://www.R-project.org/", target = "_blank"), "dan paket", a("Shiny.", href = "https://CRAN.R-project.org/package=shiny", target = "_blank"), "Paket", a("shinylive", href = "https://posit-dev.github.io/r-shinylive/", target = "_blank"), "digunakan untuk mengekspor aplikasi ini agar dapat dijalankan di peramban web tanpa peladen R yang terpisah."), align = "justify"),
-                               div(p("Pengembang dan pemelihara aplikasi ini adalah", a("Yosep Dwi Kristanto,", href = "https://people.usd.ac.id/~ydkristanto/", target = "_blank"), "seorang dosen dan peneliti di program studi", a("Pendidikan Matematika,", href = "https://usd.ac.id/s1pmat", target = "_blank"), a("Universitas Sanata Dharma,", href = "https://www.usd.ac.id/", target = "_blank"), "Yogyakarta. Aplikasi ini merupakan modifikasi dari aplikasi-aplikasi interaktif yang dikembangkan oleh Mine Çetinkaya-Rundel."), align = "justify")),
+                               div(p("Pengembang dan pemelihara aplikasi ini adalah", a("Yosep Dwi Kristanto,", href = "https://people.usd.ac.id/~ydkristanto/", target = "_blank"), "seorang dosen dan peneliti di program studi", a("Pendidikan Matematika,", href = "https://usd.ac.id/s1pmat", target = "_blank"), a("Universitas Sanata Dharma,", href = "https://www.usd.ac.id/", target = "_blank"), "Yogyakarta. Aplikasi ini merupakan modifikasi dari aplikasi-aplikasi interaktif", a("ShinyEd", href = "https://github.com/ShinyEd/intro-stats/", target = "_blank"), "yang dikembangkan oleh Mine Çetinkaya-Rundel dkk."), align = "justify")),
                         column(3, "")
                       )
              )
@@ -345,8 +347,27 @@ server <- shinyServer(function(input, output) {
       }
     })
   
+  ### Pilihan bentuk untuk rnorm2 ----
+  output$shape = renderUI(
+    {
+      
+      if (input$dist == "rnorm2"){
+        selectInput(inputId = "shape",
+                    label = "Bentuk:",
+                    choices = c("Bentuk 1" = "shape1",
+                                "Bentuk 2" = "shape2",
+                                "Bentuk 3" = "shape3"),
+                    selected = "shape1")
+      }
+    })
+  
   ### Membuat sampel-sampel random ----
-  rand_draw_rrt <- function(dist, n, mu, sd, min, max, skew){
+  # Mendefinisikan fungsi untuk distribusi puncak ganda
+  rnorm2 <- function(n, mu1, mu2, sd){
+    return(c(rnorm(n = round(2/5*n), mean = mu1, sd = sd),
+      rnorm(n = n - round(2/5*n), mean = mu2, sd = sd)))
+  }
+  rand_draw_rrt <- function(dist, n, mu, sd, min, max, skew, shape){
     
     vals = NULL
     
@@ -383,7 +404,19 @@ server <- shinyServer(function(input, output) {
     
     else if (dist == "runif"){
       req(min, max)
-      vals = do.call(dist, list( n = n, min = min, max = max))
+      vals = do.call(dist, list(n = n, min = min, max = max))
+    }
+    else if (dist == "rnorm2"){
+      req(shape)
+      if (shape == "shape1"){
+        vals = do.call(dist, list(n = n, mu1 = 30, mu2 = 70, sd = 8))
+      }
+      else if (shape == "shape2"){
+        vals = do.call(dist, list(n = n, mu1 = 70, mu2 = 30, sd = 10))
+      }
+      else if (shape == "shape3"){
+        vals = do.call(dist, list(n = n, mu1 = 30, mu2 = 70, sd = 12))
+      }
     }
     return(vals)
   }
@@ -394,7 +427,8 @@ server <- shinyServer(function(input, output) {
   parent_rrt = reactive({
     n_sample_rrt = 1e5
     return(rep_rand_draw_rrt(input$dist, n_sample_rrt, input$mu, input$sd,
-                             input$minmax[1], input$minmax[2], input$skew))
+                             input$minmax[1], input$minmax[2], input$skew,
+                             input$shape))
   })
   samples_rrt = reactive({
     pop = parent_rrt()
@@ -416,7 +450,8 @@ server <- shinyServer(function(input, output) {
                       rnorm = "Distribusi populasi: Normal",
                       rlnorm = "Distribusi populasi: Condong ke kanan",
                       rbeta = "Distribusi populasi: Condong ke kiri",
-                      runif = "Distribusi populasi: Seragam")
+                      runif = "Distribusi populasi: Seragam",
+                      rnorm2 = "Distribusi populasi: Puncak ganda")
     pop = parent_rrt()
     
     m_pop =  round(mean(pop), 2)
@@ -484,6 +519,20 @@ server <- shinyServer(function(input, output) {
         theme_bw(base_size = 19)
       
     } else if (input$dist == "rbeta"){
+      
+      x_pos = min(pop$samples) + 0.1*x_range
+      
+      ggplot(data = pop, aes(x = samples, y = ..density..)) + 
+        geom_histogram(bins = 45, color = "white") +
+        stat_density(geom = "line", size = 2) +
+        labs(title = distname, x = "x") +
+        annotate("text", x = x_pos, y = y_pos, 
+                 label = paste("rerata x", "=", bquote(.(m_pop)), 
+                               "\n", "simpangan baku x", "=", bquote(.(sd_pop))),
+                 color = "black", size = 5) +
+        theme_bw(base_size = 19)
+      
+    } else if (input$dist == "rnorm2"){
       
       x_pos = min(pop$samples) + 0.1*x_range
       
