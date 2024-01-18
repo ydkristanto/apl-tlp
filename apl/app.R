@@ -7,6 +7,7 @@ library(gridExtra)
 ui <- shinyUI(fluidPage(
   title = "Demonstrasi Teorema Limit Pusat -- Aplikasi Shiny",
   navbarPage("Demonstrasi Teorema Limit Pusat",
+             position = "static-top",
              ## Tab proporsi ----
              tabPanel("Proporsi",
                       sidebarPanel(
@@ -124,18 +125,41 @@ ui <- shinyUI(fluidPage(
              ),
              ## Tab informasi ----
              tabPanel("Informasi",
-                      fluidRow(
-                        column(6,
-                               div(h3("Aplikasi Shiny Teorema Limit Pusat")),
-                               div(p("Tujuan aplikasi interaktif ini adalah untuk mendemonstrasikan Teorema Limit Pusat untuk distribusi sampling proporsi dan rerata satu populasi. Beberapa ide penting statistik ditunjukkan oleh aplikasi ini. Ide-ide penting tersebut antara lain adalah sebagai berikut."), align = "justify"),
-                               div(tags$ul(tags$li("Jika ukuran sampelnya cukup besar, distribusi sampling proporsinya mendekati normal."),
-                                           tags$li("Distribusi sampling proporsi tersebut memiliki rerata sama dengan proporsi populasinya dan simpangan bakunya sama dengan akar kuadrat dari hasil kali antara proporsi populasi dan satu dikurangi proporsi tersebut kemudian dibagi dengan ukuran sampel."),
-                                           tags$li("Jika ukuran sampelnya cukup besar, distribusi sampling reratanya mendekati normal."),
-                                           tags$li("Untuk sampel yang berukuran kecil, distribusi sampling reratanya mendekati normal jika populasi dari sampel tersebut berdistribusi normal."),
-                                           tags$li("Distribusi sampling rerata tersebut memiliki rerata yang sama dengan rerata populasinya dan simpangan baku yang sama dengan simpangan baku populasi dibagi dengan akar kuadrat ukuran sampel.")), align = "justify"),
-                               div(p("Aplikasi interaktif ini dikembangkan dengan menggunakan bahasa pemrogram", a("R", href = "https://www.R-project.org/", target = "_blank"), "dan paket", a("Shiny.", href = "https://CRAN.R-project.org/package=shiny", target = "_blank"), "Paket", a("shinylive", href = "https://posit-dev.github.io/r-shinylive/", target = "_blank"), "digunakan untuk mengekspor aplikasi ini agar dapat dijalankan di peramban web tanpa peladen R yang terpisah."), align = "justify"),
-                               div(p("Pengembang dan pemelihara aplikasi ini adalah", a("Yosep Dwi Kristanto,", href = "https://people.usd.ac.id/~ydkristanto/", target = "_blank"), "seorang dosen dan peneliti di program studi", a("Pendidikan Matematika,", href = "https://usd.ac.id/s1pmat", target = "_blank"), a("Universitas Sanata Dharma,", href = "https://www.usd.ac.id/", target = "_blank"), "Yogyakarta. Aplikasi ini merupakan modifikasi dari aplikasi-aplikasi interaktif", a("ShinyEd", href = "https://github.com/ShinyEd/intro-stats/", target = "_blank"), "yang dikembangkan oleh Mine Çetinkaya-Rundel dkk."), align = "justify")),
-                        column(3, "")
+                      sidebarLayout(
+                        sidebarPanel(
+                          wellPanel(
+                            div(h4("Deskripsi",
+                                   style = "font-size: inherit;
+                                   font-weight: bold")),
+                            div(p("Aplikasi Shiny ini digunakan untuk mendemonstrasikan Teorema Limit Pusat untuk distribusi sampling proporsi dan rerata."))
+                          ),
+                          wellPanel(
+                            div(h4("Kode sumber",
+                                   style = "font-size: inherit;
+                                   font-weight: bold")),
+                            div(p("Kode sumber aplikasi ini tersedia di repositori", a("Github.", href = "https://github.com/ydkristanto/apl-tlp", target = "_blank")))
+                          ),
+                          wellPanel(
+                            div(h4("Lisensi",
+                                   style = "font-size: inherit;
+                                   font-weight: bold")),
+                            div(p("Lisensi MIT"),
+                                p("Copyright (c) 2024 Yosep Dwi Kristanto"))
+                          )
+                        ),
+                        mainPanel(
+                          div(h3("Aplikasi Shiny Teorema Limit Pusat")),
+                          div(p("Tujuan aplikasi interaktif ini adalah untuk mendemonstrasikan Teorema Limit Pusat untuk distribusi sampling proporsi dan rerata satu populasi. Beberapa ide penting statistik ditunjukkan oleh aplikasi ini. Ide-ide penting tersebut antara lain adalah sebagai berikut."), align = "justify"),
+                          div(tags$ul(tags$li("Jika ukuran sampelnya cukup besar, distribusi sampling proporsinya mendekati normal."),
+                                      tags$li("Distribusi sampling proporsi tersebut memiliki rerata sama dengan proporsi populasinya dan simpangan bakunya sama dengan akar kuadrat dari hasil kali antara proporsi populasi dan satu dikurangi proporsi tersebut kemudian dibagi dengan ukuran sampel."),
+                                      tags$li("Jika ukuran sampelnya cukup besar, distribusi sampling reratanya mendekati normal."),
+                                      tags$li("Untuk sampel yang berukuran kecil, distribusi sampling reratanya mendekati normal jika populasi dari sampel tersebut berdistribusi normal."),
+                                      tags$li("Distribusi sampling rerata tersebut memiliki rerata yang sama dengan rerata populasinya dan simpangan baku yang sama dengan simpangan baku populasi dibagi dengan akar kuadrat ukuran sampel.")), align = "justify"),
+                          hr(),
+                          div(p("Aplikasi interaktif ini dikembangkan dengan menggunakan bahasa pemrogram", a("R", href = "https://www.R-project.org/", target = "_blank"), "dan paket", a("Shiny.", href = "https://CRAN.R-project.org/package=shiny", target = "_blank"), "Paket", a("shinylive", href = "https://posit-dev.github.io/r-shinylive/", target = "_blank"), "digunakan untuk mengekspor aplikasi ini agar dapat dijalankan di peramban web tanpa peladen R yang terpisah."), align = "justify"),
+                          div(p("Pengembang dan pemelihara aplikasi ini adalah", a("Yosep Dwi Kristanto,", href = "https://people.usd.ac.id/~ydkristanto/", target = "_blank"), "seorang dosen dan peneliti di program studi", a("Pendidikan Matematika,", href = "https://usd.ac.id/s1pmat", target = "_blank"), a("Universitas Sanata Dharma,", href = "https://www.usd.ac.id/", target = "_blank"), "Yogyakarta. Aplikasi ini merupakan modifikasi dari aplikasi-aplikasi interaktif", a("ShinyEd", href = "https://github.com/ShinyEd/intro-stats/", target = "_blank"), "yang dikembangkan oleh Mine Çetinkaya-Rundel dkk."), align = "justify"),
+                          width = 6
+                        )
                       )
              )
   )
